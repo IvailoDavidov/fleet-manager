@@ -3,6 +3,7 @@ export type Record = {
 }
 
 export interface IStorage {
+    
     getAll(collectionName: string): Promise<Record[]>;
     getById(collectionName: string, id: string): Promise<Record>;
     create(collectionName: string, data: any): Promise<Record>;

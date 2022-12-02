@@ -1,7 +1,7 @@
 export abstract class Vehicle {
-    id: string;
-    make: string;
-    model: string;
-    rentalPrice: number;
-    rentedTo: string | null;
+    abstract id: string;
+    abstract make: string;
+    abstract model: string;
+    abstract rentalPrice: number;
+    abstract rentedTo: string | null;
 }
