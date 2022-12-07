@@ -1,10 +1,10 @@
 export class Editor {
     private form: HTMLFormElement;
-    private callback: (data: Object) => any;
+    private propNames: string[];
 
-    constructor(form: HTMLFormElement, callback: (data: Object) => any) {
+    constructor(form: HTMLFormElement, private callback: (data: Object) => any, propNames:string[]) {
         this.form = form;
-        this.callback = callback;
+        this.propNames = propNames;
         this.form.addEventListener('submit', this.onSubmit.bind(this))
     }
 
@@ -43,7 +43,7 @@ export class Editor {
     private onSubmit(event: SubmitEvent) {
         event.preventDefault();
         const formData = new FormData(this.form);
-        const data = Object.fromEntries(formData);
+        const data = Object.fromEntries(this.propNames.map(n => [n,formData.get(n)]));
         this.callback(data);
     }
 }

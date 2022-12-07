@@ -6,10 +6,10 @@ import { Record } from "./IStorage";
 type TruckViewModel = {
     make: string,
     model: string,
-    rentalPrice: number,
-    rentedTo: string,
-    cargoType: string,
+    cargoType: CargoType,
     capacity: number
+    rentalPrice: number,
+    rentedTo: string | null,
 }
 
 export class TruckService extends DataService<Truck, TruckViewModel>{
@@ -20,10 +20,10 @@ export class TruckService extends DataService<Truck, TruckViewModel>{
             data.id,
             data.make,
             data.model,
+            data.cargoType,
+            data.capacity,
             data.rentalPrice,
             data.rentedTo,
-            data.cargoType,
-            data.capacity
         );
 
         return result;
@@ -38,14 +38,11 @@ export class TruckService extends DataService<Truck, TruckViewModel>{
         if (typeof data.rentalPrice != 'number') {
             throw new TypeError('Invalid property "rentalPrice"')
         }
-        if (typeof data.rentedTo != 'string') {
-            throw new TypeError('Invalid property "rentedTo"')
-        }
         if (typeof data.cargoType != 'string') {
-            throw new TypeError('Invalid property "rentalPrice"')
+            throw new TypeError('Invalid property "cargoType"')
         }
         if (typeof data.capacity != 'number') {
-            throw new TypeError('Invalid property "numberOfSeats"')
+            throw new TypeError('Invalid property "capacity"')
         }
     }
 }
