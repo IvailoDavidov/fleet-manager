@@ -20,13 +20,13 @@
                 <a class="nav" href="/index.html">Show Overview</a>
             </nav>
         </header>
-        
+
         <div id="forms">
             <section class="editor">
                 <button class="action new">Add New Car</button>
             </section>
 
-            <section class="editor">
+            <section id="new section" class="editor">
                 <h3>New Car</h3>
                 <form id="new-car" class="align">
                     <label>
@@ -68,12 +68,12 @@
 
                     <div>
                         <button class="action confirm">Add Car</button>
-                        <button class="action cancel" type="reset">Cancel</button>
+                        <button id="1" class="action cancel" type="reset">Cancel</button>
                     </div>
                 </form>
             </section>
 
-            <section class="editor">
+            <section id="edit section" class="editor">
                 <h3>Edit Car</h3>
                 <form id="edit-car" class="align">
                     <input type="hidden" name="id">
@@ -116,7 +116,7 @@
 
                     <div>
                         <button class="action confirm">Save Car</button>
-                        <button class="action cancel">Cancel</button>
+                        <button class="action cancel" type="reset">Cancel</button>
                     </div>
                 </form>
             </section>

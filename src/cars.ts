@@ -44,13 +44,17 @@ export class Car implements Vehicle {
 const carStorage = new LocalStorage();
 const carCollection = new Collection(carStorage, 'cars');
 const carService = new CarService(carCollection);
-const formContainer = document.getElementById('forms');
+
+const newSection = document.getElementById('new section');
+const editSection = document.getElementById('edit section');
 
 const newCarForm = document.getElementById('new-car') as HTMLFormElement;
 const editCarForm = document.getElementById('edit-car') as HTMLFormElement;
 
 const table = document.querySelector(".overview") as HTMLTableElement;
 const tableManager = new Table(table, createCarRow, identifyCar)
+
+document.getElementsByClassName('action new')[0].addEventListener('click', onSwitchTableForms);
 
 const newCarEditor = new Editor(newCarForm, onSubmit.bind(null, tableManager),
     [
@@ -83,17 +87,21 @@ hidrate(tableManager);
 
 function onSwitchTableForms(event: MouseEvent) {
     if (event.target instanceof HTMLButtonElement) {
-        if (event.target.className == 'action-edit') {
+        if (event.target.className == 'action edit') {
 
             newCarEditor.remove();
-            editCarEditor.attachTo(formContainer)
+            editCarEditor.attachTo(editSection)
             const recordId = event.target.parentElement.parentElement.dataset.id
             const record = tableManager.get(recordId);
             editCarEditor.setValues(record);
 
-        } else if (event.target.className == 'action-delete') {
+        } else if (event.target.className == 'action delete') {
             onDelete(event.target, tableManager);
-        }
+
+        } else if (event.target.className == 'action new') {
+            editCarEditor.remove();
+            newCarEditor.attachTo(newSection);
+        } 
     }
 }
 
@@ -119,7 +127,7 @@ function createCarRow(car: Car) {
             td({}, `${car.numberOfSeats}`),
             td({}, car.transmission.charAt(0).toUpperCase() + car.transmission.slice(1)),
             td({}, `$/${car.rentalPrice}/day`),
-            td({}, button({ className: 'action-edit' }, 'Edit'), button({ className: 'action-delete' }, 'Delete')),
+            td({}, button({ className: 'action edit' }, 'Edit'), button({ className: 'action delete' }, 'Delete')),
         )
     return row;
 }
@@ -140,28 +148,26 @@ async function onSubmit(tableManager: Table, { make, model, bodyType, numberOfSe
         numberOfSeats: Number(numberOfSeats),
         transmission,
         rentalPrice: Number(rentalPrice),
-        rentedTo,    
+        rentedTo,
     }
     const result = await carService.create(car);
     tableManager.add(result);
-
+    newCarForm.reset();
 }
 
 async function onEdit(tableManager: Table, { id, make, model, bodyType, numberOfSeats, transmission, rentalPrice, rentedTo }) {
     numberOfSeats = Number(numberOfSeats);
     rentalPrice = Number(rentalPrice);
 
-    const result = await carService.update(id, {make, model, bodyType, numberOfSeats, transmission, rentalPrice, rentedTo });
-    //tableManager.add(result);
+    const result = await carService.update(id, { make, model, bodyType, numberOfSeats, transmission, rentalPrice, rentedTo });
+
     tableManager.replace(id, result);
-
     editCarEditor.remove();
-    newCarEditor.attachTo(formContainer)
-
+    newCarEditor.attachTo(newSection);
 }
 
 async function onDelete(target: HTMLButtonElement, tableManager: Table) {
-    const recordId = target.parentElement.parentElement.id;
+    const recordId = target.parentElement.parentElement.dataset.id;
     tableManager.remove(recordId);
     carService.delete(recordId);
 }
