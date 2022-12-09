@@ -27,8 +27,8 @@ export class Truck implements Vehicle {
         rentedTo: string,
     ) {
         this.id = id,
-        this.make = make,
-        this.model = model;
+            this.make = make,
+            this.model = model;
         this.cargoType = cargoType;
         this.capacity = capacity;
         this.rentalPrice = rentalPrice;
@@ -39,8 +39,9 @@ export class Truck implements Vehicle {
 const truckStorage = new LocalStorage();
 const truckCollection = new Collection(truckStorage, 'trucks');
 const truckService = new TruckService(truckCollection);
-const formContainer = document.getElementById('forms');
 
+const newSection = document.getElementById('new section');
+const editSection = document.getElementById('edit section');
 
 const newTruckForm = document.getElementById('new-truck') as HTMLFormElement;
 const editTruckForm = document.getElementById('edit-truck') as HTMLFormElement;
@@ -48,6 +49,7 @@ const editTruckForm = document.getElementById('edit-truck') as HTMLFormElement;
 const table = document.querySelector(".overview") as HTMLTableElement;
 const tableManager = new Table(table, createTruckRow, identifyTruck)
 
+document.getElementsByClassName('action new')[0].addEventListener('click', onSwitchTableForms);
 
 const newTruckEditor = new Editor(newTruckForm, onSubmit.bind(null, tableManager),
     [
@@ -77,17 +79,20 @@ hidrate(tableManager);
 
 function onSwitchTableForms(event: MouseEvent) {
     if (event.target instanceof HTMLButtonElement) {
-        if (event.target.className == 'action-edit') {
+        if (event.target.className == 'action edit') {
 
             newTruckEditor.remove();
-            editTruckEditor.attachTo(formContainer)
+            editTruckEditor.attachTo(editSection)
             const recordId = event.target.parentElement.parentElement.dataset.id
             const record = tableManager.get(recordId);
             editTruckEditor.setValues(record);
 
-        } else if (event.target.className == 'action-delete') {
+        } else if (event.target.className == 'action delete') {
             onDelete(event.target, tableManager);
-        }
+        } else if (event.target.className == 'action new') {
+            editTruckEditor.remove();
+            newTruckEditor.attachTo(newSection);
+        } 
     }
 }
 
@@ -106,14 +111,14 @@ function identifyTruck(trucks: Truck[], id: string) {
 
 function createTruckRow(truck: Truck) {
     const row =
-        tr({dataId: truck.id },
+        tr({ dataId: truck.id },
             td({}, truck.id),
             td({}, truck.make.charAt(0).toUpperCase() + truck.make.slice(1)),
             td({}, truck.model.charAt(0).toUpperCase() + truck.model.slice(1)),
             td({}, truck.cargoType.charAt(0).toUpperCase() + truck.cargoType.slice(1)),
             td({}, `${truck.capacity} tons`),
             td({}, `$/${truck.rentalPrice}/day`),
-            td({}, button({ className: 'action-edit' }, 'Edit'), button({ className: 'action-delete' }, 'Delete')),
+            td({}, button({ className: 'action edit' }, 'Edit'), button({ className: 'action delete' }, 'Delete')),
         )
     return row;
 }
@@ -137,6 +142,7 @@ async function onSubmit(tableManager: Table, { make, model, cargoType, capacity,
     }
     const result = await truckService.create(truck);
     tableManager.add(result);
+    newTruckForm.reset();
 }
 
 async function onEdit(tableManager: Table, { id, make, model, cargoType, capacity, rentalPrice, rentedTo }) {
@@ -147,7 +153,7 @@ async function onEdit(tableManager: Table, { id, make, model, cargoType, capacit
     tableManager.replace(id, result);
 
     editTruckEditor.remove();
-    newTruckEditor.attachTo(formContainer)
+    newTruckEditor.attachTo(newSection)
 }
 
 async function onDelete(target: HTMLButtonElement, tableManager: Table) {
