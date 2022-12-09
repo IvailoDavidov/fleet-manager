@@ -39,53 +39,81 @@ export class Truck implements Vehicle {
 const truckStorage = new LocalStorage();
 const truckCollection = new Collection(truckStorage, 'trucks');
 const truckService = new TruckService(truckCollection);
+const formContainer = document.getElementById('forms');
 
-start();
 
-async function start() {
+const newTruckForm = document.getElementById('new-truck') as HTMLFormElement;
+const editTruckForm = document.getElementById('edit-truck') as HTMLFormElement;
 
-    const newTruckForm = document.getElementById('new-truck') as HTMLFormElement;
-    const table = document.querySelector(".overview") as HTMLTableElement;
-    const tableManager = new Table(table, createTruckRow, identifyCar)
+const table = document.querySelector(".overview") as HTMLTableElement;
+const tableManager = new Table(table, createTruckRow, identifyTruck)
 
-    const editor = new Editor(newTruckForm, onSubmit.bind(null, tableManager),
-        [
-            'make',
-            'model',
-            'cargoType',
-            'capacity',
-            'rentalPrice',
-            'rentedTo',
-        ]);
 
-    hidrate(tableManager);
+const newTruckEditor = new Editor(newTruckForm, onSubmit.bind(null, tableManager),
+    [
+        'make',
+        'model',
+        'cargoType',
+        'capacity',
+        'rentalPrice',
+        'rentedTo',
+    ]);
+
+const editTruckEditor = new Editor(editTruckForm, onEdit.bind(null, tableManager),
+    [
+        'id',
+        'make',
+        'model',
+        'cargoType',
+        'capacity',
+        'rentalPrice',
+        'rentedTo',
+    ]);
+
+editTruckEditor.remove();
+tableManager.element.addEventListener('click', onSwitchTableForms);
+
+hidrate(tableManager);
+
+function onSwitchTableForms(event: MouseEvent) {
+    if (event.target instanceof HTMLButtonElement) {
+        if (event.target.className == 'action-edit') {
+
+            newTruckEditor.remove();
+            editTruckEditor.attachTo(formContainer)
+            const recordId = event.target.parentElement.parentElement.dataset.id
+            const record = tableManager.get(recordId);
+            editTruckEditor.setValues(record);
+
+        } else if (event.target.className == 'action-delete') {
+            onDelete(event.target, tableManager);
+        }
+    }
 }
-
 
 
 async function hidrate(tableManager: Table) {
     const trucks = await truckService.getAll();
-    console.log(trucks);
+
     for (let truck of trucks) {
         tableManager.add(truck);
     }
 }
 
-function identifyCar(trucks: Truck[], id: string) {
+function identifyTruck(trucks: Truck[], id: string) {
     return trucks.find(t => t.id == id);
 }
 
-
 function createTruckRow(truck: Truck) {
     const row =
-        tr({},
+        tr({dataId: truck.id },
             td({}, truck.id),
             td({}, truck.make.charAt(0).toUpperCase() + truck.make.slice(1)),
             td({}, truck.model.charAt(0).toUpperCase() + truck.model.slice(1)),
             td({}, truck.cargoType.charAt(0).toUpperCase() + truck.cargoType.slice(1)),
-            td({}, `$/${truck.capacity} tons`),
+            td({}, `${truck.capacity} tons`),
             td({}, `$/${truck.rentalPrice}/day`),
-            td({}, button({ className: 'action edit' }, 'Edit'), button({ className: 'action delete' }, 'Delete')),
+            td({}, button({ className: 'action-edit' }, 'Edit'), button({ className: 'action-delete' }, 'Delete')),
         )
     return row;
 }
@@ -94,6 +122,9 @@ async function onSubmit(tableManager: Table, { make, model, cargoType, capacity,
 
     if (Number.isNaN(Number(rentalPrice))) {
         throw new TypeError('rentalPrice must be a number');
+    }
+    if (Number.isNaN(Number(capacity))) {
+        throw new TypeError('capacity must be a number');
     }
 
     const truck = {
@@ -106,4 +137,21 @@ async function onSubmit(tableManager: Table, { make, model, cargoType, capacity,
     }
     const result = await truckService.create(truck);
     tableManager.add(result);
+}
+
+async function onEdit(tableManager: Table, { id, make, model, cargoType, capacity, rentalPrice, rentedTo }) {
+    capacity = Number(capacity);
+    rentalPrice = Number(rentalPrice);
+
+    const result = await truckService.update(id, { make, model, cargoType, capacity, rentalPrice, rentedTo });
+    tableManager.replace(id, result);
+
+    editTruckEditor.remove();
+    newTruckEditor.attachTo(formContainer)
+}
+
+async function onDelete(target: HTMLButtonElement, tableManager: Table) {
+    const recordId = target.parentElement.parentElement.dataset.id;
+    tableManager.remove(recordId);
+    truckService.delete(recordId);
 }

@@ -38,7 +38,7 @@ export class CarService extends DataService<Car, CarViewModel>{
             throw new TypeError('Invalid property "model"')
         }
         if (typeof data.bodyType != 'string') {
-            throw new TypeError('Invalid property "rentalPrice"')
+            throw new TypeError('Invalid property "bodyType"')
         }
         if (typeof data.numberOfSeats != 'number') {
             throw new TypeError('Invalid property "numberOfSeats"')

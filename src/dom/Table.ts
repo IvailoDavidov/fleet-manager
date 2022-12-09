@@ -1,12 +1,12 @@
 export class Table {
-    private element: HTMLTableElement;
+    public element: HTMLTableElement;
     private records: any[] = [];
     private rows: Map<object, HTMLTableRowElement> = new Map();
 
     constructor(
         element: HTMLTableElement,
         private createRow: (record: any) => HTMLTableRowElement,
-        private identify?: (record: any[], id: any) => any,
+        private identify?: (records: any[], id: any) => any,
         records?: any[]
     ) {
 
@@ -35,5 +35,27 @@ export class Table {
     getRow(id: any): HTMLTableRowElement {
         const record = this.get(id);
         return this.rows.get(record);
+    }
+
+    replace(id: any, newRecord: any) {
+        const record = this.get(id);
+        const index = this.records.findIndex(r => r == record);
+        const row = this.getRow(id);
+
+        const newRow = this.createRow(newRecord);
+        row.replaceWith(newRow);
+        this.rows.set(record, newRow);
+
+        this.records.splice(index, 1, newRecord);
+    }
+
+    remove(id: string): void {
+
+        const record = this.get(id);
+        const recordIndex = this.records.findIndex(r => r.id == id);
+        const row = this.getRow(id);
+        row.remove();
+        this.rows.delete(record);
+        this.records.splice(recordIndex, 1)
     }
 }
