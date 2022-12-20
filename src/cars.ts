@@ -43,7 +43,7 @@ export class Car implements Vehicle {
 
 const carStorage = new LocalStorage();
 const carCollection = new Collection(carStorage, 'cars');
-const carService = new CarService(carCollection);
+export const carService = new CarService(carCollection);
 
 const newSection = document.getElementById('new section');
 const editSection = document.getElementById('edit section');
@@ -54,7 +54,10 @@ const editCarForm = document.getElementById('edit-car') as HTMLFormElement;
 const table = document.querySelector(".overview") as HTMLTableElement;
 const tableManager = new Table(table, createCarRow, identifyCar)
 
-document.getElementsByClassName('action new')[0].addEventListener('click', onSwitchTableForms);
+const addBtn = document.getElementsByClassName('action new')[0];
+if(addBtn){
+    addBtn.addEventListener('click', onSwitchTableForms);
+}
 
 const newCarEditor = new Editor(newCarForm, onSubmit.bind(null, tableManager),
     [

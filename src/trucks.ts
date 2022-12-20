@@ -38,7 +38,7 @@ export class Truck implements Vehicle {
 
 const truckStorage = new LocalStorage();
 const truckCollection = new Collection(truckStorage, 'trucks');
-const truckService = new TruckService(truckCollection);
+export const truckService = new TruckService(truckCollection);
 
 const newSection = document.getElementById('new section');
 const editSection = document.getElementById('edit section');
@@ -49,7 +49,11 @@ const editTruckForm = document.getElementById('edit-truck') as HTMLFormElement;
 const table = document.querySelector(".overview") as HTMLTableElement;
 const tableManager = new Table(table, createTruckRow, identifyTruck)
 
-document.getElementsByClassName('action new')[0].addEventListener('click', onSwitchTableForms);
+const addBtn = document.getElementsByClassName('action new')[0];
+
+if(addBtn){
+    addBtn.addEventListener('click', onSwitchTableForms);
+}
 
 const newTruckEditor = new Editor(newTruckForm, onSubmit.bind(null, tableManager),
     [

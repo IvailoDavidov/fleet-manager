@@ -5,7 +5,9 @@ export class Editor {
     constructor(form: HTMLFormElement, private callback: (data: Object) => any, propNames:string[]) {
         this.form = form;
         this.propNames = propNames;
-        this.form.addEventListener('submit', this.onSubmit.bind(this))
+        if(this.form){
+            this.form.addEventListener('submit', this.onSubmit.bind(this))
+        }
     }
 
     setValue(name: string, value: any) {
@@ -33,7 +35,9 @@ export class Editor {
     }
 
     remove() {
-        this.form.remove();
+        if(this.form){
+            this.form.remove();
+        }
     }
 
     attachTo(parent: Node) {
